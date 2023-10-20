@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Category Management</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="">Home</a></li>
+                        <li class="breadcrumb-item active">Category</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% for message in app.flashes('success') %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-success mt-2 message"> {{ message }} </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-danger mt-2 message"> {{ message }} </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <section class="content">
+        <div class="container-fluid mt-2">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title mt-2">Category List</h3>
+                            <div class="card-tools">
+                                <a href="{{path('category.create')}}">
+                                    <button type="button" class="btn btn-primary ">+ Add</button>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover datagrid holiday-datatable">
+                                <thead>
+                                    <tr>
+                                        <th>Serial No</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set itemsPerPage = pagination.getItemNumberPerPage() %}
+                                    {% set currentPage = pagination.getPaginationData().current %}
+                                    {% if pagination is empty %}
+                                    <tr>
+                                        <td colspan="3"><h2 style="margin-left:340px;">No category found</h2></td>
+                                    </tr>
+                                    {% else %}
+                                	{% for categorys in pagination %}
+                                        {% set serialNumber = (currentPage - 1) * itemsPerPage + loop.index %}
+                        				<tr class="">
+				                            <td>{{ serialNumber }}</td>
+				                            <td>{{ categorys.name }}</td>
+				                            <td>
+				                           		{% if categorys.status == 0 %}
+    												<span class="badge badge-danger">Inactive</span>
+												{% else %}
+    												<span class="badge badge-success">Active</span>
+												{% endif %}
+											</td>
+                            				<td>
+                                				<div class="btn-group">
+				                                    <a href="{{path('category.edit', {'id':categorys.id})}}" class="text-primary mt-1"><i class="fas fa-edit"></i></a>&nbsp &nbsp
+				                        			<!-- <a href="{{path('category.delete', {'id':categorys.id})}}" class="text-danger mt-1"><i class="fas fa-trash"></i></a> -->
+                                                    <button type="button" onclick="loadCategoryModal({{ categorys.id }}, '{{ categorys.name }}')" class="btn btn-sm text-danger"><i class="fas fa-trash"></i></button>
+                                				</div>
+                            				</td>
+                        				</tr>
+                    				{% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <div class="float-sm-right">
+                                {{ knp_pagination_render(pagination, 'overridepagination.html.twig') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="deletecategory">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Category</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="text-center justify-content-left">Are you sure you want to delete <span id="modal-name"></span>?</h5>
+                </div>
+                <div class="modal-footer justify-content-right">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger" id="modal-confirm_delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+// Delete Category Record With Model
+function loadCategoryModal(id, name) {
+    $('#modal-name').html(name);
+    $('#modal-confirm_delete').attr('onclick', `confirmCategoryDelete(${id})`);
+    $('#deletecategory').modal('show');
+}
+
+function confirmCategoryDelete(id) {
+    var url = '{{ path('category.delete', {'id': 'PLACEHOLDER'}) }}';
+    url = url.replace('PLACEHOLDER', id);
+    var redirecturl = '{{ path('category.list') }}';
+    $.ajax({
+        type: 'POST',
+        url: url,
+        success: function(response) {
+            if (response.success == true) {
+                var flashMessage = response.flash_message;
+                var flashContainer = $('<div class="container-fluid"><div class="row"><div class="col-md-12"><div class="alert alert-success mt-2 message">' + flashMessage + '</div></div></div></div>');
+                $('body').append(flashContainer);
+                $('#deletecategory').modal('hide');
+                location.href = redirecturl;
+            }else if(response.success == false){
+                var flashMessage = response.flash_message;
+                var flashContainer = $('<div class="container-fluid"><div class="row"><div class="col-md-12"><div class="alert alert-danger mt-2 message">' + flashMessage + '</div></div></div></div>');
+                $('body').append(flashContainer);
+                $('#deletecategory').modal('hide');
+                location.href = redirecturl;
+            }
+        },
+        error: function(error) {
+            // Handle error response
+        }
+    });
+}
+
+// toast message hide after few second
+$(document).ready(function(){
+    setTimeout(function() {
+        $(".message").hide('blind', {}, 300)
+    }, 3000);
+});
+</script>
+{% endblock %}

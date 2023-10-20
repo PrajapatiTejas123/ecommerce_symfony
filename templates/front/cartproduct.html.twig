@@ -1,0 +1,138 @@
+{% extends 'front/layout/base.html.twig' %}
+{% block body %}
+
+<section class="h-100" style="background-color: #eee;">
+  	<div class="container h-100 py-5">
+    	<div class="row d-flex justify-content-center align-items-center h-100">
+      		<div class="col-9">
+        		<div class="d-flex justify-content-between align-items-center mb-4">
+          			<h3 class="fw-normal mb-0 text-black">Shopping Cart</h3>
+          			<div>
+            			<p class="mb-0"><span class="text-muted">Sort by:</span> <a href="#!" class="text-body">price <i
+                  		class="fas fa-angle-down mt-1"></i></a></p>
+          			</div>
+        		</div>
+        		{% for product in products %}
+    			<div class="card rounded-3 mb-4 product" data-product-id="{{ product.id }}" data-original-price="{{ product.price }}" data-current-quantity="1">
+        			<div class="card-body p-4">
+            			<div class="row d-flex justify-content-between align-items-center">
+                			<div class="col-md-2 col-lg-2 col-xl-2">
+                   	 			<img src="{{ asset('uploads/images/' ~ product.firstImageName) }}"
+                        		class="img-fluid rounded-3" alt="Cotton T-shirt">
+                			</div>
+                			<div class="col-md-3 col-lg-3 col-xl-3">
+			                    <p class="lead fw-normal mb-2">{{product.name}}</p>
+			                    <p><span class="text-muted">Size: </span>M <span class="text-muted">Color: </span>Grey</p>
+                			</div>
+                			<div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+				                <button class="btn btn-link px-2 decress-qty"
+				                  onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
+				                <i class="fas fa-minus"></i>
+				                </button>
+				                <input id="form1" min="1" name="quantity" value="1" type="number"
+				                  class="form-control form-control-sm" />
+				                <button class="btn btn-link px-2 increment-qty"
+				                  onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
+				                  <i class="fas fa-plus"></i>
+				                </button>
+              				</div>
+              				<div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                    			<h5 class="mb-0 price">${{product.price}}</h5>
+                			</div>
+                			<input type="hidden" class="original-price" value="{{ product.price }}">
+        					<input type="hidden" class="current-quantity" value="1">
+			                <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+			                    <a href="{{ path('remove.product', {'id': product.id}) }}" class="text-danger Remove-From-Cart"><i class="fas fa-trash fa-lg"></i></a>
+			                </div>
+            			</div>
+        			</div>
+   	 			</div>
+			{% endfor %}
+      		</div>
+      		<div class="col-lg-3">
+        		<div class="card bg-primary text-white rounded-3">
+          			<div class="card-body">
+            			<div class="d-flex justify-content-between align-items-center mb-4">
+              				<h5 class="mb-0">Card details</h5>
+              				<img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-6.webp"
+                			class="img-fluid rounded-3" style="width: 45px;" alt="Avatar">
+            			</div>
+	                    <p class="small mb-2">Card type</p>
+	                    <a href="#!" type="submit" class="text-white"><i
+	                        class="fab fa-cc-mastercard fa-2x me-2"></i></a>
+	                    <a href="#!" type="submit" class="text-white"><i
+	                        class="fab fa-cc-visa fa-2x me-2"></i></a>
+	                    <a href="#!" type="submit" class="text-white"><i
+	                        class="fab fa-cc-amex fa-2x me-2"></i></a>
+	                    <a href="#!" type="submit" class="text-white"><i class="fab fa-cc-paypal fa-2x"></i></a>
+            			<hr class="my-4">
+            			<div class="d-flex justify-content-between">
+						    <p class="mb-2">Subtotal</p>
+						    <p class="mb-2" id="subtotal">$0.00</p>
+						</div>
+						<div class="d-flex justify-content-between">
+						    <p class="mb-2">Shipping</p>
+						    <p class="mb-2">$20.00</p>
+						</div>
+						<div class="d-flex justify-content-between mb-4">
+						    <p class="mb-2">Total (Incl. taxes)</p>
+						    <p class="mb-2" id="total">$0.00</p>
+						</div>
+						<button type="button" class="btn btn-info btn-block btn-lg">
+						    <div class="d-flex justify-content-between">
+						        <span id="checkout-total">$0.00</span>
+						        <span>Checkout <i class="fas fa-long-arrow-alt-right ms-2"></i></span>
+						    </div>
+						</button>
+          			</div>
+        		</div>
+      		</div>
+    	</div>
+  	</div>
+</section>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $(document).on('click', '.increment-qty', function() {
+        var product = $(this).closest('.product');
+        var originalPrice = parseFloat(product.data('original-price'));
+        var quantityElement = product.find('.current-quantity');
+        var currentQuantity = parseInt(quantityElement.val())
+        var newQuantity = currentQuantity + 1;
+        quantityElement.val(newQuantity); 
+        var productTotal = originalPrice * newQuantity;
+        product.find('.price').text('$' + productTotal);
+        updateSubtotalAndTotal();
+    });
+    function updateSubtotalAndTotal() {
+        var subtotal = 0;
+        $('.product').each(function() {
+            var productTotal = parseFloat($(this).find('.price').text().replace('$', ''));
+            subtotal += productTotal;
+        });
+        var shipping = 20;
+        var total = subtotal + shipping;
+        $('#subtotal').text('$' + subtotal);
+        $('#total').text('$' + total);
+        $('#checkout-total').text('$' + total);
+    }
+
+    $(document).on('click', '.decress-qty', function() {
+        var product = $(this).closest('.product');
+        var originalPrice = parseFloat(product.data('original-price'));
+        var quantityElement = product.find('.current-quantity');
+        var currentQuantity = parseInt(quantityElement.val());
+        if (currentQuantity > 1) {
+            var newQuantity = currentQuantity - 1;
+            quantityElement.val(newQuantity); 
+            var productTotal = originalPrice * newQuantity;
+            product.find('.price').text('$' + productTotal);
+            updateSubtotalAndTotal();
+        }
+    });
+});
+
+
+</script>
+
+{% endblock %}

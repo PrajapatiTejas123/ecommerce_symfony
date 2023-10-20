@@ -1,0 +1,87 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+category/list:
+    path: category/list
+    controller: App\Controller\CategoryController::listcategory
+
+category/create:
+    path: category/create
+    controller: App\Controller\CategoryController::createcategory
+
+category/edit:
+    path: /category/edit/{id}
+    controller: App\Controller\CategoryController::editcategory
+
+category/delete:
+    path: /category/delete/{id}
+    controller: App\Controller\CategoryController::deletecategory
+
+product/list:
+    path: product/list
+    controller: App\Controller\ProductController::listproduct
+
+product/create:
+    path: product/create
+    controller: App\Controller\ProductController::createproduct
+
+product/edit:
+    path: /product/edit/{id}
+    controller: App\Controller\ProductController::editproduct
+
+product/delete:
+    path: /product/delete/{id}
+    controller: App\Controller\ProductController::deleteproduct
+
+subcategory/list:
+    path: subcategory/list
+    controller: App\Controller\SubCategoryController::listsubcategory
+
+subcategory/create:
+    path: subcategory/create
+    controller: App\Controller\SubCategoryController::createsubcategory
+
+subcategory/edit:
+    path: /subcategory/edit/{id}
+    controller: App\Controller\SubCategoryController::editsubcategory
+
+subcategory/delete:
+    path: /subcategory/delete/{id}
+    controller: App\Controller\SubCategoryController::deletesubcategory
+
+productimageDelete:
+    path: /productimage/delete
+    controller: App\Controller\ProductController::deleteproductimage
+
+getsubcategory:
+    path: getsubcategory
+    controller: App\Controller\ProductController::getsubcategory
+
+dashboard:
+    path: dashboard
+    controller: App\Controller\CategoryController::dashboard
+
+
+home:
+    path: home
+    controller: App\Controller\Front\FrontController::homePage
+
+getproduct:
+    path: getproduct
+    controller: App\Controller\Front\FrontController::getProduct
+
+addcart:
+    path: addcart
+    controller: App\Controller\Front\FrontController::addCart
+
+removecart:
+    path: removecart
+    controller: App\Controller\Front\FrontController::removeCart
+
+clearsession:
+    path: clearsession
+    controller: App\Controller\Front\FrontController::clearsession
+
